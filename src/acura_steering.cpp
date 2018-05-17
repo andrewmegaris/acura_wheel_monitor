@@ -25,13 +25,9 @@ public:
 
     if (input.id == 342)
     {
-      int8_t byte1 = input.data[0];
-      if (byte1 == 0 || byte1 == 255)
-        steering_angle.data = float((int16_t)((1 << 8) + input.data[1]));
-      else
-        steering_angle.data = float((int16_t)((0 << 8) + input.data[1]));
+      steering_angle.data = float(   ((int16_t)((input.data[0] << 8) + input.data[1])) * -0.1 );
 
-      std::cout << "Sterring angle:  " << steering_angle.data << std::endl;
+      std::cout << "Steering angle:  " << steering_angle.data << std::endl;
 
         pubSteering.publish(steering_angle);
         publish_rate.sleep();
