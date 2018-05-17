@@ -1,6 +1,6 @@
 #include <ros/ros.h>
-#include <std_msgs/String.h>
 #include <can_msgs/Frame.h>
+#include <std_msgs/Floats32.h>
 #include <cmath>
 
 class subAndPub
@@ -23,11 +23,15 @@ public:
   {
     ros::Rate publish_rate(10);   
 
-    if (input.frame_id == //TODO Steering frame.)
+    if (input.frame_id == 342)
     {
-      
-      //TODO convert bytes to steering angle. 
-      steering_angle.data = input.frame_id[0] + input_frame_id[0];
+      int8_t byte1 = input.data[0];
+      if (byte1 > 1)
+      steering_angle.data = float((int16_t)((1 << 8) +  input_frame_id[1]) );
+      else
+      steering_angle.data = float(int8_t)input_frame_id[1];
+
+      std::cout << "Sterring angle:  " << steering.angle.data << std::endl;
         while (pubSteering.getNumSubscribers() < 1)
         {
           if (!ros::ok())
@@ -56,4 +60,4 @@ int main(int argc, char **argv)
   subAndPub mydood;
   ros::spin();
   return 0;
-}
+}    return false;
