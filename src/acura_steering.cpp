@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <can_msgs/Frame.h>
-#include <std_msgs/Floats32.h>
+#include <std_msgs/Float32.h>
 #include <cmath>
 
 class subAndPub
@@ -11,7 +11,7 @@ public:
   subAndPub()
   {        
     //set up.
-    pubSteering = nh.advertise<std__msgs::Float32>("steering_angle", 10);
+    pubSteering = nh.advertise<std_msgs::Float32>("steering_angle", 10);
 
     //Subscribe to whatever topic is publishing the CAN frames
     //if you use 'rosrun socketcan_bridge socketcan_to_topic' that is 'received_messages'
@@ -23,24 +23,16 @@ public:
   {
     ros::Rate publish_rate(10);   
 
-    if (input.frame_id == 342)
+    if (input.id == 342)
     {
       int8_t byte1 = input.data[0];
-      if (byte1 > 1)
-      steering_angle.data = float((int16_t)((1 << 8) +  input_frame_id[1]) );
+      if (byte1 == 0 || byte1 == 255)
+        steering_angle.data = float((int16_t)((1 << 8) + input.data[1]));
       else
-      steering_angle.data = float(int8_t)input_frame_id[1];
+        steering_angle.data = float((int16_t)((0 << 8) + input.data[1]));
 
-      std::cout << "Sterring angle:  " << steering.angle.data << std::endl;
-        while (pubSteering.getNumSubscribers() < 1)
-        {
-          if (!ros::ok())
-          {
-            return;
-          }
-          ROS_WARN_ONCE("Please create a subscriber to the marker array");
-          sleep(1);
-        }
+      std::cout << "Sterring angle:  " << steering_angle.data << std::endl;
+
         pubSteering.publish(steering_angle);
         publish_rate.sleep();
     }
@@ -50,7 +42,7 @@ private:
   ros::NodeHandle nh; 
   ros::Publisher  pubSteering;
   ros::Subscriber sub; 
-  std_msgs::float32 steering_angle;
+  std_msgs::Float32 steering_angle;
 
 };
 
@@ -60,4 +52,5 @@ int main(int argc, char **argv)
   subAndPub mydood;
   ros::spin();
   return 0;
-}    return false;
+
+}   
