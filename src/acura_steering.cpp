@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <can_msgs/Frame.h>
-#include <std_msgs/Float32.h>
+#include <std_msgs/Steering.h>
 #include <cmath>
 
 class subAndPub
@@ -11,7 +11,7 @@ public:
   subAndPub()
   {        
     //set up.
-    pubSteering = nh.advertise<std_msgs::Float32>("steering_angle", 10);
+    pubSteering = nh.advertise<std_msgs::Steering>("steering_angle", 10);
 
     //Subscribe to whatever topic is publishing the CAN frames
     //if you use 'rosrun socketcan_bridge socketcan_to_topic' that is 'received_messages'
@@ -25,11 +25,12 @@ public:
 
     if (input.id == 342)
     {
-      steering_angle.data = float(   ((int16_t)((input.data[0] << 8) + input.data[1])) * -0.1 );
+      steering_sensor.angle      = float(((int16_t)((input.data[0] << 8) + input.data[1])) * -0.1 );
+      steering_sensor.angle_rate = float(((int16_t)((input.data[2] << 8) + input.data[3])));
 
-      std::cout << "Steering angle:  " << steering_angle.data << std::endl;
+      std::cout << "Steering angle:  " << steering_sensor.angle << std::endl;
 
-        pubSteering.publish(steering_angle);
+        pubSteering.publish(steering_sensor);
         publish_rate.sleep();
     }
   }
@@ -38,7 +39,7 @@ private:
   ros::NodeHandle nh; 
   ros::Publisher  pubSteering;
   ros::Subscriber sub; 
-  std_msgs::Float32 steering_angle;
+  std_msgs::Steering steering_sensor;
 
 };
 
