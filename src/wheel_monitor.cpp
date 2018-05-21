@@ -22,19 +22,19 @@ public:
 
   void callback(const can_msgs::Frame& input)
   {
-    ros::Rate publish_rate(1);   
+
 
     if (input.id == 464)
     {
       wheel_sensor.header.stamp = ros::Time::now();
-      //WE CAN DO A CHECKSUMMM
-      wheel_sensor.FL_speed      = float(((int16_t)((input.data[0] << 8) + input.data[1])) * -0.1 );
-      wheel_sensor.FR_speed      = float(((int16_t)((input.data[0] << 8) + input.data[1])) * -0.1 );
-      wheel_sensor.RL_speed      = float(((int16_t)((input.data[0] << 8) + input.data[1])) * -0.1 );
-      wheel_sensor.RR_speed      = float(((int16_t)((input.data[0] << 8) + input.data[1])) * -0.1 );
-      std::cout << "hit dem wheelz yo" << std::endl;
+   
+      
+      wheel_sensor.FL_speed = float( (int16_t) ( (input.data[1] >> 1) + (input.data[0] << 7)))                                    * 0.01;
+      wheel_sensor.FR_speed = float( (int16_t) ( (input.data[3] >> 2) + (input.data[2] << 6) + ((input.data[1] & 0x01) << 14) ) ) * 0.01;
+      wheel_sensor.RL_speed = float( (int16_t) ( (input.data[5] >> 3) + (input.data[4] << 5) + ((input.data[3] & 0x03) << 13) ) ) * 0.01;
+      wheel_sensor.RR_speed = float( (int16_t) ( (input.data[7] >> 4) + (input.data[6] << 4) + ((input.data[5] & 0x07) << 12) ) ) * 0.01;
+
       pubWheels.publish(wheel_sensor);
-      publish_rate.sleep();
     }
   }
 
